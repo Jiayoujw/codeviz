@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { usePlaybackStore } from '../../store/playbackStore';
 import { useVisualizerStore } from '../../store/visualizerStore';
 import { useEditorStore } from '../../store/editorStore';
@@ -116,6 +116,46 @@ export function PlaybackControls() {
     setCurrentSnapshot(results[0]);
     setCurrentLine(results[0].line);
   }, [setStatus, setCurrentStep, setVisualizationType, setSnapshots, setTotalSteps, setCurrentSnapshot, setCurrentLine]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't trigger when typing in editor
+      const tag = (e.target as HTMLElement).tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || (e.target as HTMLElement).getAttribute('contenteditable')) return;
+
+      switch (e.key) {
+        case ' ':
+          e.preventDefault();
+          if (status === 'running') handlePause();
+          else handlePlay();
+          break;
+        case 'ArrowRight':
+          e.preventDefault();
+          handleStepForward();
+          break;
+        case 'ArrowLeft':
+          e.preventDefault();
+          handleStepBack();
+          break;
+        case 'r':
+        case 'R':
+          if (!e.ctrlKey && !e.metaKey) {
+            e.preventDefault();
+            handleReset();
+          }
+          break;
+        case 'Enter':
+          if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            handleRun();
+          }
+          break;
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [status, handlePlay, handlePause, handleStepForward, handleStepBack, handleReset, handleRun]);
 
   const description = snapshots[currentStep]?.description ?? '';
 

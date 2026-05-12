@@ -1,8 +1,8 @@
 import { useRef, useEffect, useCallback } from 'react';
 import { useVisualizerStore } from '../../store/visualizerStore';
 import { useLangStore } from '../../store/langStore';
+import { getThemeColors } from '../../utils/color';
 import { getTranslations } from '../../i18n';
-
 export function DpVisualizer() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const currentSnapshot = useVisualizerStore((s) => s.currentSnapshot);
@@ -20,14 +20,15 @@ export function DpVisualizer() {
     ctx.scale(dpr, dpr);
     const W = rect.width;
     const H = rect.height;
-    ctx.fillStyle = '#0a0a0f';
+    const tc = getThemeColors();
+    ctx.fillStyle = tc.bg;
     ctx.fillRect(0, 0, W, H);
 
     const lang = useLangStore.getState().lang;
     const tr = getTranslations(lang);
 
     if (!dp || dp.dp.length === 0) {
-      ctx.fillStyle = 'rgba(255,255,255,0.3)';
+      ctx.fillStyle = tc.emptyText;
       ctx.font = '18px Inter, sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText(tr.empty.dp, W / 2, H / 2);

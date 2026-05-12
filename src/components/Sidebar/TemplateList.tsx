@@ -112,10 +112,10 @@ export function TemplateList() {
   return (
     <div className="py-3">
       <div className="px-3 mb-3 flex items-center justify-between">
-        <h2 className="text-sm font-bold text-[var(--color-text-primary)] tracking-wider">
+        <h2 className="text-sm font-bold text-[var(--color-text-primary)] tracking-wide">
           {lang === 'zh-CN' ? '算法' : 'ALGORITHMS'}
         </h2>
-        <span className="text-[10px] text-[var(--color-text-secondary)]">{filtered.length}</span>
+        <span className="text-[11px] text-[var(--color-text-secondary)]">{filtered.length}</span>
       </div>
 
       {/* Search */}
@@ -125,7 +125,7 @@ export function TemplateList() {
           placeholder={lang === 'zh-CN' ? '搜索算法...' : 'Search algorithms...'}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full px-2 py-1.5 text-xs rounded border border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--color-text-primary)] placeholder-[var(--color-text-secondary)] focus:outline-none focus:border-[var(--color-neon-cyan)] transition-colors"
+          className="w-full px-3 py-2 text-xs rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-2)] text-[var(--color-text-primary)] placeholder-[var(--color-text-secondary)] focus:outline-none focus:border-[var(--color-neon-cyan)] transition-colors"
         />
       </div>
 
@@ -135,7 +135,7 @@ export function TemplateList() {
           <button
             key={d}
             onClick={() => setFilter(d)}
-            className={`px-2 py-0.5 text-[10px] rounded-full transition-all ${
+            className={`px-2.5 py-1 text-[11px] rounded-full transition-all ${
               filter === d
                 ? d === 'all'
                   ? 'bg-[var(--color-neon-cyan)]/20 text-[var(--color-neon-cyan)] border border-[var(--color-neon-cyan)]'
@@ -168,7 +168,7 @@ export function TemplateList() {
         return (
           <div key={cat} className="mb-4">
             <div
-              className="px-3 py-1.5 text-[10px] font-bold tracking-widest mb-1"
+              className="px-3 py-1.5 text-xs font-semibold tracking-wide mb-1"
               style={{ color: cfg.color }}
             >
               {cfg.icon} {tr.categories[catKey]}
@@ -180,14 +180,14 @@ export function TemplateList() {
                 <button
                   key={t.id}
                   onClick={() => handleSelect(t)}
-                  className="w-full text-left px-4 py-2.5 hover:bg-[var(--color-surface-3)] transition-colors border-l-2 border-transparent hover:border-[var(--color-neon-cyan)] group"
+                  className="w-full text-left px-4 py-3 hover:bg-[var(--color-surface-3)] transition-all duration-150 border-l-[3px] border-transparent hover:border-[var(--color-neon-cyan)] hover:translate-x-0.5 group rounded-r"
                 >
                   <div className="flex items-center gap-2">
-                    <span className="text-sm">{t.icon}</span>
-                    <span className="text-xs font-medium text-[var(--color-text-primary)] flex-1">{t.name}</span>
+                    <span className="text-base">{t.icon}</span>
+                    <span className="text-sm font-medium text-[var(--color-text-primary)] flex-1">{t.name}</span>
                     {diff && (
                       <span
-                        className="text-[9px] px-1.5 py-0.5 rounded-full font-medium"
+                        className="text-[10px] px-1.5 py-0.5 rounded-full font-medium"
                         style={{
                           color: dc.color,
                           backgroundColor: dc.color + '18',
@@ -198,7 +198,7 @@ export function TemplateList() {
                       </span>
                     )}
                   </div>
-                  <div className="text-[10px] text-[var(--color-text-secondary)] mt-0.5 ml-6">
+                  <div className="text-xs text-[var(--color-text-secondary)] mt-0.5 ml-7">
                     {t.description}
                   </div>
                 </button>

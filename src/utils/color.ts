@@ -16,13 +16,30 @@ export const SORTED_COLOR = NEON_GREEN;
 export const PIVOT_COLOR = NEON_PURPLE;
 export const DEFAULT_BAR_COLOR = NEON_CYAN;
 export const HIGHLIGHT_COLOR = NEON_ORANGE;
-export const VISITED_COLOR = '#663399';
+export const VISITED_COLOR = '#8b5cf6';
 export const PATH_COLOR = NEON_GREEN;
 export const CURRENT_COLOR = NEON_YELLOW;
 
 export const GRADIENT_DARK = `linear-gradient(135deg, ${SURFACE_0}, ${SURFACE_1})`;
 export const GRADIENT_NEON = `linear-gradient(135deg, ${NEON_CYAN}, ${NEON_PURPLE})`;
 export const GRADIENT_WARM = `linear-gradient(135deg, ${NEON_PINK}, ${NEON_ORANGE})`;
+
+export interface ThemeColors {
+  bg: string;
+  nodeFill: string;
+  gridLine: string;
+  emptyText: string;
+}
+
+export function getThemeColors(): ThemeColors {
+  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+  return {
+    bg: isLight ? '#f5f5fa' : '#0a0a0f',
+    nodeFill: isLight ? '#ffffff' : '#12121a',
+    gridLine: isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.03)',
+    emptyText: isLight ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.3)',
+  };
+}
 
 export function getBarColor(index: number, snapshot: {
   comparing: [number, number] | null;

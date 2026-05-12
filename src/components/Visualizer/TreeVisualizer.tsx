@@ -3,7 +3,7 @@ import { useVisualizerStore } from '../../store/visualizerStore';
 import { useLangStore } from '../../store/langStore';
 import { getTranslations } from '../../i18n';
 import { layoutTree } from '../../utils/layout';
-import { getNodeColor, SURFACE_3, VISITED_COLOR } from '../../utils/color';
+import { getNodeColor, SURFACE_3, VISITED_COLOR, getThemeColors } from '../../utils/color';
 import type { TreeNodeData } from '../../types';
 
 function renderTree(
@@ -63,7 +63,7 @@ function drawNode(ctx: CanvasRenderingContext2D, node: TreeNodeData) {
   ctx.fill();
 
   // Circle
-  ctx.fillStyle = '#12121a';
+  ctx.fillStyle = getThemeColors().nodeFill;
   ctx.strokeStyle = color;
   ctx.lineWidth = 2.5;
   ctx.beginPath();
@@ -105,13 +105,14 @@ export function TreeVisualizer() {
     const H = rect.height;
 
     // Background
-    ctx.fillStyle = '#0a0a0f';
+    const tc = getThemeColors();
+    ctx.fillStyle = tc.bg;
     ctx.fillRect(0, 0, W, H);
 
     if (!tree) {
       const lang = useLangStore.getState().lang;
       const tr = getTranslations(lang);
-      ctx.fillStyle = 'rgba(255,255,255,0.3)';
+      ctx.fillStyle = tc.emptyText;
       ctx.font = '18px Inter, sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText(tr.empty.tree, W / 2, H / 2);

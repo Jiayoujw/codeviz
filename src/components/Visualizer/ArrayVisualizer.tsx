@@ -3,7 +3,7 @@ import { useVisualizerStore } from '../../store/visualizerStore';
 import { usePlaybackStore } from '../../store/playbackStore';
 import { useLangStore } from '../../store/langStore';
 import { getTranslations } from '../../i18n';
-import { getBarColor, DEFAULT_BAR_COLOR, SURFACE_0 } from '../../utils/color';
+import { getBarColor, DEFAULT_BAR_COLOR, getThemeColors } from '../../utils/color';
 
 export function ArrayVisualizer() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -33,18 +33,20 @@ export function ArrayVisualizer() {
     const W = rect.width;
     const H = rect.height;
 
+    const tc = getThemeColors();
+
     // Background
-    ctx.fillStyle = SURFACE_0;
+    ctx.fillStyle = tc.bg;
     ctx.fillRect(0, 0, W, H);
 
     // Grid lines
-    ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+    ctx.strokeStyle = tc.gridLine;
     ctx.lineWidth = 1;
     for (let x = 0; x < W; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
     for (let y = 0; y < H; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
 
     if (elements.length === 0) {
-      ctx.fillStyle = 'rgba(255,255,255,0.3)';
+      ctx.fillStyle = tc.emptyText;
       ctx.font = '18px Inter, sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText(tr.empty.array, W / 2, H / 2);

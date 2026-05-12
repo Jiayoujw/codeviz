@@ -3,7 +3,7 @@ import { useVisualizerStore } from '../../store/visualizerStore';
 import { useLangStore } from '../../store/langStore';
 import { getTranslations } from '../../i18n';
 import { layoutGraph } from '../../utils/layout';
-import { getNodeColor, NEON_CYAN, PATH_COLOR, SURFACE_3 } from '../../utils/color';
+import { getNodeColor, NEON_CYAN, PATH_COLOR, SURFACE_3, getThemeColors } from '../../utils/color';
 import type { GraphState } from '../../types';
 
 function renderGraph(
@@ -77,7 +77,7 @@ function renderGraph(
     ctx.fill();
 
     // Circle
-    ctx.fillStyle = '#12121a';
+    ctx.fillStyle = getThemeColors().nodeFill;
     ctx.strokeStyle = color;
     ctx.lineWidth = 2.5;
     ctx.beginPath();
@@ -123,11 +123,12 @@ export function GraphVisualizer() {
     const W = rect.width;
     const H = rect.height;
 
-    ctx.fillStyle = '#0a0a0f';
+    const tc = getThemeColors();
+    ctx.fillStyle = tc.bg;
     ctx.fillRect(0, 0, W, H);
 
     // Grid
-    ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+    ctx.strokeStyle = tc.gridLine;
     ctx.lineWidth = 1;
     for (let x = 0; x < W; x += 50) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
     for (let y = 0; y < H; y += 50) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
@@ -135,7 +136,7 @@ export function GraphVisualizer() {
     if (!graph) {
       const lang = useLangStore.getState().lang;
       const tr = getTranslations(lang);
-      ctx.fillStyle = 'rgba(255,255,255,0.3)';
+      ctx.fillStyle = tc.emptyText;
       ctx.font = '18px Inter, sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText(tr.empty.graph, W / 2, H / 2);

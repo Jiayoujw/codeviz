@@ -3,7 +3,7 @@ import { useVisualizerStore } from '../../store/visualizerStore';
 import { useLangStore } from '../../store/langStore';
 import { getTranslations } from '../../i18n';
 import type { GridCell } from '../../types';
-
+import { getThemeColors } from '../../utils/color';
 const CELL_COLORS: Record<GridCell['type'], string> = {
   empty: '#1a1a26',
   wall: '#2a2a3a',
@@ -32,14 +32,15 @@ export function GridVisualizer() {
     ctx.scale(dpr, dpr);
     const W = rect.width;
     const H = rect.height;
-    ctx.fillStyle = '#0a0a0f';
+    const tc = getThemeColors();
+    ctx.fillStyle = tc.bg;
     ctx.fillRect(0, 0, W, H);
 
     const lang = useLangStore.getState().lang;
     const tr = getTranslations(lang);
 
     if (!grid) {
-      ctx.fillStyle = 'rgba(255,255,255,0.3)';
+      ctx.fillStyle = tc.emptyText;
       ctx.font = '18px Inter, sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText(tr.empty.grid, W / 2, H / 2);

@@ -2,7 +2,7 @@ import { useRef, useEffect, useCallback } from 'react';
 import { useVisualizerStore } from '../../store/visualizerStore';
 import { useLangStore } from '../../store/langStore';
 import { getTranslations } from '../../i18n';
-import { NEON_CYAN, NEON_GREEN, NEON_PINK, SURFACE_3 } from '../../utils/color';
+import { NEON_CYAN, NEON_GREEN, NEON_PINK, SURFACE_3, getThemeColors } from '../../utils/color';
 
 export function LinkedListVisualizer() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -26,13 +26,14 @@ export function LinkedListVisualizer() {
     const W = rect.width;
     const H = rect.height;
 
-    ctx.fillStyle = '#0a0a0f';
+    const tc = getThemeColors();
+    ctx.fillStyle = tc.bg;
     ctx.fillRect(0, 0, W, H);
 
     if (!ll || ll.nodes.length === 0) {
       const lang = useLangStore.getState().lang;
       const tr = getTranslations(lang);
-      ctx.fillStyle = 'rgba(255,255,255,0.3)';
+      ctx.fillStyle = tc.emptyText;
       ctx.font = '18px Inter, sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText(tr.empty.linkedlist, W / 2, H / 2);
@@ -95,7 +96,7 @@ export function LinkedListVisualizer() {
       ctx.fill();
 
       // Node rectangle
-      ctx.fillStyle = '#12121a';
+      ctx.fillStyle = getThemeColors().nodeFill;
       ctx.strokeStyle = color;
       ctx.lineWidth = 2;
       ctx.beginPath();

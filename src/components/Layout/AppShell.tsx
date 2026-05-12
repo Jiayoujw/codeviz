@@ -11,6 +11,7 @@ import { PlaybackControls } from '../ControlPanel/PlaybackControls';
 import { TemplateList } from '../Sidebar/TemplateList';
 import { FlowCanvas } from '../FlowBuilder/FlowCanvas';
 import { NodePalette } from '../FlowBuilder/NodePalette';
+import { WelcomeHero } from './WelcomeHero';
 import { useVisualizerStore } from '../../store/visualizerStore';
 import { useLangStore } from '../../store/langStore';
 import { useThemeStore } from '../../store/themeStore';
@@ -24,8 +25,11 @@ type Tab = 'visualizer' | 'flow' | 'compare';
 
 export function AppShell() {
   const visualizationType = useVisualizerStore((s) => s.visualizationType);
+  const snapshots = useVisualizerStore((s) => s.snapshots);
+  const playbackStatus = usePlaybackStore((s) => s.status);
   const [tab, setTab] = useState<Tab>('visualizer');
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const lang = useLangStore((s) => s.lang);
   const toggleLang = useLangStore((s) => s.toggle);
   const tr = getTranslations(lang);
@@ -83,25 +87,35 @@ export function AppShell() {
   return (
     <div className="h-full flex flex-col bg-[var(--color-surface-0)] text-[var(--color-text-primary)]">
       {/* Top bar */}
-      <header className="responsive-header h-12 flex items-center justify-between px-4 border-b border-[var(--color-border)] bg-[var(--color-surface-1)] shrink-0 gap-1 flex-wrap">
-        <div className="flex items-center gap-2">
+      <header className="responsive-header h-12 flex items-center justify-between px-4 border-b border-[var(--color-border)] bg-[var(--color-surface-1)] shrink-0 gap-2 flex-nowrap">
+        <div className="flex items-center gap-2 shrink-0">
+          {/* Hamburger for mobile */}
+          <button
+            onClick={() => setMobileMenuOpen(true)}
+            className="hidden max-[768px]:flex w-8 h-8 items-center justify-center rounded border border-[var(--color-border)] hover:border-[var(--color-neon-cyan)] transition-colors shrink-0"
+            title="Menu"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+          </button>
           <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-[var(--color-neon-cyan)] to-[var(--color-neon-purple)] bg-clip-text text-transparent whitespace-nowrap">
             {tr.app.title}
           </span>
-          <span className="text-[10px] sm:text-xs text-[var(--color-text-secondary)] tracking-widest hidden sm:inline">
+          <span className="text-[10px] sm:text-xs text-[var(--color-text-secondary)] tracking-wide hidden sm:inline">
             {tr.app.subtitle}
           </span>
         </div>
 
-        <div className="flex items-center gap-1.5">
-          {/* Tab switcher */}
-          <div className="flex rounded overflow-hidden border border-[var(--color-border)]">
+        <div className="flex items-center gap-1.5 shrink-0">
+          {/* Nav group: tab switcher */}
+          <div className="flex rounded-md overflow-hidden border border-[var(--color-border)] mr-1">
             {(['visualizer', 'compare', 'flow'] as Tab[]).map((t) => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
-                className={`px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs transition-colors whitespace-nowrap ${
-                  tab === t ? 'bg-[var(--color-neon-purple)] text-white' : 'hover:bg-[var(--color-surface-3)]'
+                className={`px-2.5 py-1.5 text-[11px] font-medium transition-colors whitespace-nowrap ${
+                  tab === t ? 'bg-[var(--color-neon-purple)] text-white' : 'hover:bg-[var(--color-surface-3)] text-[var(--color-text-secondary)]'
                 }`}
               >
                 {t === 'visualizer' ? tr.app.visualizer : t === 'compare' ? (lang === 'zh-CN' ? '对比' : 'Compare') : tr.app.flowBuilder}
@@ -109,57 +123,77 @@ export function AppShell() {
             ))}
           </div>
 
-          {/* Sound toggle */}
-          <button
-            onClick={toggleSound}
-            className={`px-2 py-1.5 text-[10px] rounded border transition-colors ${soundEnabled ? 'border-[var(--color-neon-green)]/30 text-[var(--color-neon-green)]' : 'border-[var(--color-border)] text-[var(--color-text-secondary)]'}`}
-            title={soundEnabled ? (lang === 'zh-CN' ? '关闭音效' : 'Mute') : (lang === 'zh-CN' ? '开启音效' : 'Unmute')}
-          >
-            {soundEnabled ? '🔊' : '🔇'}
-          </button>
-
-          {/* Theme toggle */}
-          <button
-            onClick={toggleTheme}
-            className="px-2 py-1.5 text-[10px] rounded border border-[var(--color-border)] hover:border-[var(--color-neon-yellow)] transition-colors"
-            title={lang === 'zh-CN' ? '切换主题' : 'Toggle theme'}
-          >
-            {theme === 'dark' ? '☀️' : '🌙'}
-          </button>
-
-          {/* Language toggle */}
-          <button
-            onClick={toggleLang}
-            className="px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs rounded border border-[var(--color-neon-purple)]/30 hover:border-[var(--color-neon-purple)] bg-[var(--color-neon-purple)]/10 text-[var(--color-neon-purple)] transition-all"
-          >
-            {tr.lang}
-          </button>
-
-          {/* Share */}
-          <button
-            onClick={handleShare}
-            className="px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs rounded border border-[var(--color-neon-cyan)]/30 text-[var(--color-neon-cyan)] hover:border-[var(--color-neon-cyan)] hover:shadow-[0_0_10px_var(--color-neon-cyan)] transition-all"
-          >
-            {lang === 'zh-CN' ? '分享' : 'Share'}
-          </button>
-
-          {/* Sidebar toggle */}
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="px-2 py-1.5 text-[10px] rounded border border-[var(--color-border)] hover:border-[var(--color-neon-cyan)] transition-colors whitespace-nowrap"
-          >
-            {sidebarOpen ? '◄' : '►'}
-          </button>
+          {/* Tool group */}
+          <div className="flex items-center gap-1">
+            <button
+              onClick={toggleSound}
+              className="w-8 h-8 flex items-center justify-center rounded border text-xs transition-colors"
+              style={{ borderColor: soundEnabled ? 'var(--color-neon-green)' : 'var(--color-border)', color: soundEnabled ? 'var(--color-neon-green)' : 'var(--color-text-secondary)' }}
+              title={soundEnabled ? (lang === 'zh-CN' ? '关闭音效' : 'Mute') : (lang === 'zh-CN' ? '开启音效' : 'Unmute')}
+            >
+              {soundEnabled ? '🔊' : '🔇'}
+            </button>
+            <button
+              onClick={toggleTheme}
+              className="w-8 h-8 flex items-center justify-center rounded border border-[var(--color-border)] text-xs hover:border-[var(--color-neon-yellow)] transition-colors"
+              title={lang === 'zh-CN' ? '切换主题' : 'Toggle theme'}
+            >
+              {theme === 'dark' ? '☀️' : '🌙'}
+            </button>
+            <button
+              onClick={toggleLang}
+              className="px-2 py-1 text-[11px] rounded border border-[var(--color-neon-purple)]/40 text-[var(--color-neon-purple)] hover:bg-[var(--color-neon-purple)]/10 transition-all"
+            >
+              {tr.lang}
+            </button>
+            <button
+              onClick={handleShare}
+              className="px-2 py-1 text-[11px] rounded border border-[var(--color-neon-cyan)]/40 text-[var(--color-neon-cyan)] hover:bg-[var(--color-neon-cyan)]/10 transition-all"
+            >
+              {lang === 'zh-CN' ? '分享' : 'Share'}
+            </button>
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="hidden md:flex w-8 h-8 items-center justify-center rounded border border-[var(--color-border)] hover:border-[var(--color-neon-cyan)] transition-colors text-xs"
+              title={sidebarOpen ? (lang === 'zh-CN' ? '收起侧栏' : 'Collapse sidebar') : (lang === 'zh-CN' ? '展开侧栏' : 'Expand sidebar')}
+            >
+              {sidebarOpen ? '◄' : '►'}
+            </button>
+          </div>
         </div>
       </header>
 
       {/* Main content */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Sidebar */}
+      <div className="flex-1 flex overflow-hidden relative">
+        {/* Sidebar - desktop */}
         {sidebarOpen && (
-          <aside className="responsive-sidebar w-64 border-r border-[var(--color-border)] bg-[var(--color-surface-1)] overflow-y-auto shrink-0">
+          <aside className="hidden md:block w-64 border-r border-[var(--color-border)] bg-[var(--color-surface-1)] overflow-y-auto shrink-0">
             <TemplateList />
           </aside>
+        )}
+
+        {/* Sidebar - mobile overlay */}
+        {mobileMenuOpen && (
+          <>
+            <div
+              className="fixed inset-0 bg-black/50 z-40 md:hidden"
+              onClick={() => setMobileMenuOpen(false)}
+            />
+            <aside className="fixed left-0 top-0 bottom-0 w-[85%] max-w-xs border-r border-[var(--color-border)] bg-[var(--color-surface-1)] overflow-y-auto z-50 shadow-2xl md:hidden">
+              <div className="flex items-center justify-between px-3 py-2 border-b border-[var(--color-border)]">
+                <span className="text-xs font-semibold text-[var(--color-text-primary)]">
+                  {lang === 'zh-CN' ? '算法模板' : 'Templates'}
+                </span>
+                <button
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-6 h-6 flex items-center justify-center rounded text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
+                >
+                  ✕
+                </button>
+              </div>
+              <TemplateList />
+            </aside>
+          </>
         )}
 
         {/* Center area */}
@@ -168,13 +202,13 @@ export function AppShell() {
             /* Comparison Mode: side-by-side */
             <div className="flex-1 flex overflow-hidden">
               <div className="flex-1 border-r border-[var(--color-border)] flex flex-col">
-                <div className="px-3 py-1.5 text-[10px] font-semibold text-[var(--color-text-secondary)] border-b border-[var(--color-border)] bg-[var(--color-surface-1)]">
+                <div className="px-3 py-1.5 text-xs font-semibold text-[var(--color-text-secondary)] border-b border-[var(--color-border)] bg-[var(--color-surface-1)]">
                   {lang === 'zh-CN' ? '左侧 - 算法 A' : 'Left - Algorithm A'}
                 </div>
                 <div className="flex-1 relative overflow-hidden">{renderVisualizer(visualizationType)}</div>
               </div>
               <div className="flex-1 flex flex-col">
-                <div className="px-3 py-1.5 text-[10px] font-semibold text-[var(--color-text-secondary)] border-b border-[var(--color-border)] bg-[var(--color-surface-1)]">
+                <div className="px-3 py-1.5 text-xs font-semibold text-[var(--color-text-secondary)] border-b border-[var(--color-border)] bg-[var(--color-surface-1)]">
                   {lang === 'zh-CN' ? '右侧 - 算法 B' : 'Right - Algorithm B'}
                 </div>
                 <div className="flex-1 relative overflow-hidden">{renderVisualizer(visTypeForComparison)}</div>
@@ -184,17 +218,20 @@ export function AppShell() {
             <>
               <div className="flex-1 flex overflow-hidden">
                 <div className="flex-1 relative overflow-hidden">
-                  {renderVisualizer(visualizationType)}
+                  {playbackStatus === 'idle' && snapshots.length === 0
+                    ? <WelcomeHero />
+                    : renderVisualizer(visualizationType)
+                  }
                 </div>
                 <div className="responsive-right-panel w-80 xl:w-96 border-l border-[var(--color-border)] flex flex-col shrink-0 bg-[var(--color-surface-1)]">
                   <div className="flex-1 overflow-hidden">
-                    <div className="px-3 py-2 text-xs font-semibold text-[var(--color-text-secondary)] tracking-wider border-b border-[var(--color-border)]">
+                    <div className="px-3 py-2 text-xs font-semibold text-[var(--color-text-secondary)] tracking-wide border-b border-[var(--color-border)]">
                       {tr.app.codeEditor}
                     </div>
                     <CodeEditor />
                   </div>
                   <div className="h-48 border-t border-[var(--color-border)] overflow-hidden">
-                    <div className="px-3 py-2 text-xs font-semibold text-[var(--color-text-secondary)] tracking-wider border-b border-[var(--color-border)]">
+                    <div className="px-3 py-2 text-xs font-semibold text-[var(--color-text-secondary)] tracking-wide border-b border-[var(--color-border)]">
                       {tr.app.variables}
                     </div>
                     <VariablePanel />

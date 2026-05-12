@@ -64,13 +64,11 @@ html, body, #root {
 
 /* Responsive */
 @media (max-width: 1024px) {
-  .responsive-sidebar { width: 200px !important; }
-  .responsive-right-panel { width: 280px !important; }
+  .responsive-right-panel { width: 260px !important; }
 }
 @media (max-width: 768px) {
-  .responsive-sidebar { display: none; }
-  .responsive-right-panel { width: 100% !important; position: absolute; right: 0; z-index: 10; }
   .responsive-header { height: 40px !important; padding: 0 8px !important; }
-  .responsive-header span { font-size: 11px !important; }
+  .responsive-header span { font-size: 12px !important; }
+  .responsive-right-panel { display: none; }
 }
 
