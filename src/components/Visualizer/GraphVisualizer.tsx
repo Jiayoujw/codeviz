@@ -1,5 +1,7 @@
 import { useRef, useEffect, useCallback } from 'react';
 import { useVisualizerStore } from '../../store/visualizerStore';
+import { useLangStore } from '../../store/langStore';
+import { getTranslations } from '../../i18n';
 import { layoutGraph } from '../../utils/layout';
 import { getNodeColor, NEON_CYAN, PATH_COLOR, SURFACE_3 } from '../../utils/color';
 import type { GraphState } from '../../types';
@@ -131,10 +133,12 @@ export function GraphVisualizer() {
     for (let y = 0; y < H; y += 50) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
 
     if (!graph) {
+      const lang = useLangStore.getState().lang;
+      const tr = getTranslations(lang);
       ctx.fillStyle = 'rgba(255,255,255,0.3)';
       ctx.font = '18px Inter, sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('Select a graph algorithm to visualize', W / 2, H / 2);
+      ctx.fillText(tr.empty.graph, W / 2, H / 2);
       return;
     }
 

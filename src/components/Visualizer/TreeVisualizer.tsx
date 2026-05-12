@@ -1,5 +1,7 @@
 import { useRef, useEffect, useCallback } from 'react';
 import { useVisualizerStore } from '../../store/visualizerStore';
+import { useLangStore } from '../../store/langStore';
+import { getTranslations } from '../../i18n';
 import { layoutTree } from '../../utils/layout';
 import { getNodeColor, SURFACE_3, VISITED_COLOR } from '../../utils/color';
 import type { TreeNodeData } from '../../types';
@@ -107,10 +109,12 @@ export function TreeVisualizer() {
     ctx.fillRect(0, 0, W, H);
 
     if (!tree) {
+      const lang = useLangStore.getState().lang;
+      const tr = getTranslations(lang);
       ctx.fillStyle = 'rgba(255,255,255,0.3)';
       ctx.font = '18px Inter, sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('Select a tree algorithm to visualize', W / 2, H / 2);
+      ctx.fillText(tr.empty.tree, W / 2, H / 2);
       return;
     }
 

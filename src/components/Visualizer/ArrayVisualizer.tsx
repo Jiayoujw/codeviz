@@ -1,6 +1,8 @@
 import { useRef, useEffect, useCallback } from 'react';
 import { useVisualizerStore } from '../../store/visualizerStore';
 import { usePlaybackStore } from '../../store/playbackStore';
+import { useLangStore } from '../../store/langStore';
+import { getTranslations } from '../../i18n';
 import { getBarColor, DEFAULT_BAR_COLOR, SURFACE_0 } from '../../utils/color';
 
 export function ArrayVisualizer() {
@@ -24,6 +26,9 @@ export function ArrayVisualizer() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    const lang = useLangStore.getState().lang;
+    const tr = getTranslations(lang);
+
     ctx.scale(dpr, dpr);
     const W = rect.width;
     const H = rect.height;
@@ -42,7 +47,7 @@ export function ArrayVisualizer() {
       ctx.fillStyle = 'rgba(255,255,255,0.3)';
       ctx.font = '18px Inter, sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('Select an algorithm to visualize', W / 2, H / 2);
+      ctx.fillText(tr.empty.array, W / 2, H / 2);
       return;
     }
 

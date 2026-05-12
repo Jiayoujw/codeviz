@@ -1,7 +1,10 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { usePlaybackStore } from '../../store/playbackStore';
 import { useVisualizerStore } from '../../store/visualizerStore';
 import { useEditorStore } from '../../store/editorStore';
+import { useLangStore } from '../../store/langStore';
+import { getTranslations } from '../../i18n';
+import { exportGif } from '../../engine/gifExporter';
 
 export function PlaybackControls() {
   const status = usePlaybackStore((s) => s.status);
@@ -14,6 +17,12 @@ export function PlaybackControls() {
   const snapshots = useVisualizerStore((s) => s.snapshots);
   const setCurrentSnapshot = useVisualizerStore((s) => s.setCurrentSnapshot);
   const setCurrentLine = useEditorStore((s) => s.setCurrentLine);
+  const visualizationType = useVisualizerStore((s) => s.visualizationType);
+
+  const lang = useLangStore((s) => s.lang);
+  const tr = getTranslations(lang);
+
+  const [exporting, setExporting] = useState(false);
 
   const isRunning = status === 'running';
 
@@ -65,7 +74,26 @@ export function PlaybackControls() {
     setCurrentLine(-1);
   }, [setStatus, setCurrentStep, setCurrentSnapshot, setCurrentLine]);
 
+  const handleExportGif = useCallback(async () => {
+    if (snapshots.length === 0 || exporting) return;
+    setExporting(true);
+    try {
+      await exportGif(snapshots, visualizationType, speed);
+    } catch (e) {
+      console.error('GIF export failed:', e);
+    } finally {
+      setExporting(false);
+    }
+  }, [snapshots, visualizationType, speed, exporting]);
+
   const description = snapshots[currentStep]?.description ?? '';
+
+  const statusText: Record<string, string> = {
+    idle: tr.controls.idle,
+    running: tr.controls.running,
+    paused: tr.controls.paused,
+    completed: tr.controls.completed,
+  };
 
   return (
     <div className="h-14 flex items-center gap-4 px-4 border-t border-[var(--color-border)] bg-[var(--color-surface-1)] shrink-0">
@@ -73,7 +101,7 @@ export function PlaybackControls() {
       <button
         onClick={isRunning ? handlePause : handlePlay}
         className="w-10 h-10 rounded-full border-2 border-[var(--color-neon-cyan)] flex items-center justify-center hover:bg-[var(--color-neon-cyan)]/10 transition-all hover:shadow-[0_0_15px_var(--color-neon-cyan)]"
-        title={isRunning ? 'Pause' : 'Play'}
+        title={isRunning ? tr.controls.pause : tr.controls.play}
       >
         {isRunning ? (
           <svg width="16" height="16" viewBox="0 0 24 24" fill="var(--color-neon-cyan)">
@@ -87,33 +115,21 @@ export function PlaybackControls() {
       </button>
 
       {/* Step backward */}
-      <button
-        onClick={handleStepBack}
-        className="w-8 h-8 rounded border border-[var(--color-border)] flex items-center justify-center hover:border-[var(--color-neon-cyan)] transition-colors"
-        title="Step Back"
-      >
+      <button onClick={handleStepBack} className="w-8 h-8 rounded border border-[var(--color-border)] flex items-center justify-center hover:border-[var(--color-neon-cyan)] transition-colors" title={tr.controls.stepBack}>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
           <rect x="16" y="5" width="4" height="14" rx="1" /><polygon points="8,12 16,4 16,20" />
         </svg>
       </button>
 
       {/* Step forward */}
-      <button
-        onClick={handleStepForward}
-        className="w-8 h-8 rounded border border-[var(--color-border)] flex items-center justify-center hover:border-[var(--color-neon-cyan)] transition-colors"
-        title="Step Forward"
-      >
+      <button onClick={handleStepForward} className="w-8 h-8 rounded border border-[var(--color-border)] flex items-center justify-center hover:border-[var(--color-neon-cyan)] transition-colors" title={tr.controls.stepForward}>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
           <rect x="4" y="5" width="4" height="14" rx="1" /><polygon points="16,12 8,4 8,20" />
         </svg>
       </button>
 
       {/* Reset */}
-      <button
-        onClick={handleReset}
-        className="w-8 h-8 rounded border border-[var(--color-border)] flex items-center justify-center hover:border-[var(--color-neon-pink)] transition-colors"
-        title="Reset"
-      >
+      <button onClick={handleReset} className="w-8 h-8 rounded border border-[var(--color-border)] flex items-center justify-center hover:border-[var(--color-neon-pink)] transition-colors" title={tr.controls.reset}>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M3 12a9 9 0 1 1 9 9" /><polyline points="3 3 3 12 12 12" />
         </svg>
@@ -121,13 +137,9 @@ export function PlaybackControls() {
 
       {/* Speed control */}
       <div className="flex items-center gap-2 ml-2">
-        <span className="text-xs text-[var(--color-text-secondary)]">Speed</span>
+        <span className="text-xs text-[var(--color-text-secondary)]">{tr.controls.speed}</span>
         <input
-          type="range"
-          min="0.25"
-          max="4"
-          step="0.25"
-          value={speed}
+          type="range" min="0.25" max="4" step="0.25" value={speed}
           onChange={(e) => handleSpeedChange(parseFloat(e.target.value))}
           className="w-24 h-1 accent-[var(--color-neon-cyan)]"
         />
@@ -136,16 +148,37 @@ export function PlaybackControls() {
 
       {/* Step counter */}
       <div className="ml-auto flex items-center gap-2 text-xs text-[var(--color-text-secondary)]">
-        <span>Step</span>
+        <span>{tr.controls.step}</span>
         <span className="text-[var(--color-neon-cyan)]">{currentStep + 1}</span>
         <span>/</span>
         <span>{totalSteps || snapshots.length}</span>
       </div>
 
       {/* Status badge */}
-      <div className={`text-xs px-2 py-1 rounded ${status === 'running' ? 'bg-[var(--color-neon-green)]/20 text-[var(--color-neon-green)] animate-pulse' : status === 'completed' ? 'bg-[var(--color-neon-cyan)]/20 text-[var(--color-neon-cyan)]' : 'bg-[var(--color-surface-3)] text-[var(--color-text-secondary)]'}`}>
-        {status.toUpperCase()}
+      <div className={`text-xs px-2 py-1 rounded ${
+        status === 'running' ? 'bg-[var(--color-neon-green)]/20 text-[var(--color-neon-green)] animate-pulse' :
+        status === 'completed' ? 'bg-[var(--color-neon-cyan)]/20 text-[var(--color-neon-cyan)]' :
+        'bg-[var(--color-surface-3)] text-[var(--color-text-secondary)]'
+      }`}>
+        {statusText[status] ?? status}
       </div>
+
+      {/* Export GIF */}
+      <button
+        onClick={handleExportGif}
+        disabled={exporting || snapshots.length === 0}
+        className={`px-3 py-1.5 text-xs rounded border transition-all flex items-center gap-1.5 ${
+          exporting
+            ? 'border-[var(--color-neon-orange)] text-[var(--color-neon-orange)] animate-pulse'
+            : 'border-[var(--color-neon-green)]/30 text-[var(--color-neon-green)] hover:border-[var(--color-neon-green)] hover:shadow-[0_0_10px_var(--color-neon-green)]'
+        }`}
+        title={tr.controls.exportGif}
+      >
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
+        </svg>
+        {exporting ? tr.controls.exporting : tr.controls.exportGif}
+      </button>
 
       {/* Description */}
       <div className="text-xs text-[var(--color-text-secondary)] truncate max-w-md">

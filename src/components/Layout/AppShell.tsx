@@ -10,6 +10,8 @@ import { TemplateList } from '../Sidebar/TemplateList';
 import { FlowCanvas } from '../FlowBuilder/FlowCanvas';
 import { NodePalette } from '../FlowBuilder/NodePalette';
 import { useVisualizerStore } from '../../store/visualizerStore';
+import { useLangStore } from '../../store/langStore';
+import { getTranslations } from '../../i18n';
 
 type Tab = 'visualizer' | 'flow';
 
@@ -17,6 +19,9 @@ export function AppShell() {
   const visualizationType = useVisualizerStore((s) => s.visualizationType);
   const [tab, setTab] = useState<Tab>('visualizer');
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const lang = useLangStore((s) => s.lang);
+  const toggleLang = useLangStore((s) => s.toggle);
+  const tr = getTranslations(lang);
 
   const renderVisualizer = () => {
     switch (visualizationType) {
@@ -34,29 +39,40 @@ export function AppShell() {
       <header className="h-12 flex items-center justify-between px-4 border-b border-[var(--color-border)] bg-[var(--color-surface-1)] shrink-0">
         <div className="flex items-center gap-3">
           <span className="text-xl font-bold bg-gradient-to-r from-[var(--color-neon-cyan)] to-[var(--color-neon-purple)] bg-clip-text text-transparent">
-            CodeViz
+            {tr.app.title}
           </span>
-          <span className="text-xs text-[var(--color-text-secondary)] tracking-widest">EDUCATION PLATFORM</span>
+          <span className="text-xs text-[var(--color-text-secondary)] tracking-widest hidden sm:inline">
+            {tr.app.subtitle}
+          </span>
         </div>
         <div className="flex items-center gap-2">
+          {/* Language toggle */}
+          <button
+            onClick={toggleLang}
+            className="px-3 py-1.5 text-xs rounded border border-[var(--color-neon-purple)]/30 hover:border-[var(--color-neon-purple)] bg-[var(--color-neon-purple)]/10 text-[var(--color-neon-purple)] transition-all hover:shadow-[0_0_10px_var(--color-neon-purple)]"
+            title="Switch language"
+          >
+            {tr.lang}
+          </button>
+
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="px-3 py-1.5 text-xs rounded border border-[var(--color-border)] hover:border-[var(--color-neon-cyan)] transition-colors"
           >
-            {sidebarOpen ? '◄ Templates' : '► Templates'}
+            {sidebarOpen ? tr.app.templates : tr.app.hideTemplates}
           </button>
           <div className="flex rounded overflow-hidden border border-[var(--color-border)]">
             <button
               onClick={() => setTab('visualizer')}
               className={`px-4 py-1.5 text-xs transition-colors ${tab === 'visualizer' ? 'bg-[var(--color-neon-purple)] text-white' : 'hover:bg-[var(--color-surface-3)]'}`}
             >
-              Visualizer
+              {tr.app.visualizer}
             </button>
             <button
               onClick={() => setTab('flow')}
               className={`px-4 py-1.5 text-xs transition-colors ${tab === 'flow' ? 'bg-[var(--color-neon-purple)] text-white' : 'hover:bg-[var(--color-surface-3)]'}`}
             >
-              Flow Builder
+              {tr.app.flowBuilder}
             </button>
           </div>
         </div>
@@ -76,22 +92,19 @@ export function AppShell() {
           {tab === 'visualizer' ? (
             <>
               <div className="flex-1 flex overflow-hidden">
-                {/* Visualization panel */}
                 <div className="flex-1 relative overflow-hidden">
                   {renderVisualizer()}
                 </div>
-
-                {/* Right panel: Editor + Variables */}
                 <div className="w-96 border-l border-[var(--color-border)] flex flex-col shrink-0 bg-[var(--color-surface-1)]">
                   <div className="flex-1 overflow-hidden">
                     <div className="px-3 py-2 text-xs font-semibold text-[var(--color-text-secondary)] tracking-wider border-b border-[var(--color-border)]">
-                      CODE EDITOR
+                      {tr.app.codeEditor}
                     </div>
                     <CodeEditor />
                   </div>
                   <div className="h-48 border-t border-[var(--color-border)] overflow-hidden">
                     <div className="px-3 py-2 text-xs font-semibold text-[var(--color-text-secondary)] tracking-wider border-b border-[var(--color-border)]">
-                      VARIABLES
+                      {tr.app.variables}
                     </div>
                     <VariablePanel />
                   </div>

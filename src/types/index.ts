@@ -95,6 +95,7 @@ export interface AlgorithmTemplate {
   code: string;
   description: string;
   icon: string;
+  difficulty?: 'easy' | 'medium' | 'hard';
 }
 
 export type PlaybackStatus = 'idle' | 'running' | 'paused' | 'completed';

@@ -1,5 +1,7 @@
 import { useRef, useEffect, useCallback } from 'react';
 import { useVisualizerStore } from '../../store/visualizerStore';
+import { useLangStore } from '../../store/langStore';
+import { getTranslations } from '../../i18n';
 import { NEON_CYAN, NEON_GREEN, NEON_PINK, SURFACE_3 } from '../../utils/color';
 
 export function LinkedListVisualizer() {
@@ -28,10 +30,12 @@ export function LinkedListVisualizer() {
     ctx.fillRect(0, 0, W, H);
 
     if (!ll || ll.nodes.length === 0) {
+      const lang = useLangStore.getState().lang;
+      const tr = getTranslations(lang);
       ctx.fillStyle = 'rgba(255,255,255,0.3)';
       ctx.font = '18px Inter, sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('Select a linked list operation to visualize', W / 2, H / 2);
+      ctx.fillText(tr.empty.linkedlist, W / 2, H / 2);
       return;
     }
 

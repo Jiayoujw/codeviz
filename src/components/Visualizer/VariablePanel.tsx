@@ -1,7 +1,11 @@
 import { useVisualizerStore } from '../../store/visualizerStore';
+import { useLangStore } from '../../store/langStore';
+import { getTranslations } from '../../i18n';
 
 export function VariablePanel() {
   const currentSnapshot = useVisualizerStore((s) => s.currentSnapshot);
+  const lang = useLangStore((s) => s.lang);
+  const tr = getTranslations(lang);
 
   const vars = currentSnapshot?.variables ?? [];
 
@@ -9,7 +13,7 @@ export function VariablePanel() {
     <div className="h-full overflow-auto p-3">
       {vars.length === 0 ? (
         <div className="text-xs text-[var(--color-text-secondary)] text-center mt-4">
-          No variables to display
+          {tr.empty.variables}
         </div>
       ) : (
         <div className="space-y-1">
