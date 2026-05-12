@@ -1,0 +1,156 @@
+import { useCallback } from 'react';
+import { usePlaybackStore } from '../../store/playbackStore';
+import { useVisualizerStore } from '../../store/visualizerStore';
+import { useEditorStore } from '../../store/editorStore';
+
+export function PlaybackControls() {
+  const status = usePlaybackStore((s) => s.status);
+  const setStatus = usePlaybackStore((s) => s.setStatus);
+  const speed = usePlaybackStore((s) => s.speed);
+  const setSpeed = usePlaybackStore((s) => s.setSpeed);
+  const currentStep = usePlaybackStore((s) => s.currentStep);
+  const setCurrentStep = usePlaybackStore((s) => s.setCurrentStep);
+  const totalSteps = usePlaybackStore((s) => s.totalSteps);
+  const snapshots = useVisualizerStore((s) => s.snapshots);
+  const setCurrentSnapshot = useVisualizerStore((s) => s.setCurrentSnapshot);
+  const setCurrentLine = useEditorStore((s) => s.setCurrentLine);
+
+  const isRunning = status === 'running';
+
+  const handlePlay = useCallback(() => {
+    if (snapshots.length === 0) return;
+    if (status === 'completed') {
+      setCurrentStep(0);
+      setCurrentSnapshot(snapshots[0]);
+      setCurrentLine(snapshots[0].line);
+    }
+    setStatus('running');
+  }, [snapshots, status, setStatus, setCurrentStep, setCurrentSnapshot, setCurrentLine]);
+
+  const handlePause = useCallback(() => {
+    setStatus('paused');
+  }, [setStatus]);
+
+  const handleStepForward = useCallback(() => {
+    if (snapshots.length === 0) return;
+    if (currentStep < snapshots.length - 1) {
+      const next = currentStep + 1;
+      setCurrentStep(next);
+      setCurrentSnapshot(snapshots[next]);
+      setCurrentLine(snapshots[next].line);
+      setStatus('paused');
+    } else {
+      setStatus('completed');
+    }
+  }, [snapshots, currentStep, setCurrentStep, setCurrentSnapshot, setCurrentLine, setStatus]);
+
+  const handleStepBack = useCallback(() => {
+    if (snapshots.length === 0) return;
+    if (currentStep > 0) {
+      const prev = currentStep - 1;
+      setCurrentStep(prev);
+      setCurrentSnapshot(snapshots[prev]);
+      setCurrentLine(snapshots[prev].line);
+    }
+  }, [snapshots, currentStep, setCurrentStep, setCurrentSnapshot, setCurrentLine]);
+
+  const handleSpeedChange = useCallback((newSpeed: number) => {
+    setSpeed(newSpeed);
+  }, [setSpeed]);
+
+  const handleReset = useCallback(() => {
+    setStatus('idle');
+    setCurrentStep(0);
+    setCurrentSnapshot(null);
+    setCurrentLine(-1);
+  }, [setStatus, setCurrentStep, setCurrentSnapshot, setCurrentLine]);
+
+  const description = snapshots[currentStep]?.description ?? '';
+
+  return (
+    <div className="h-14 flex items-center gap-4 px-4 border-t border-[var(--color-border)] bg-[var(--color-surface-1)] shrink-0">
+      {/* Play/Pause */}
+      <button
+        onClick={isRunning ? handlePause : handlePlay}
+        className="w-10 h-10 rounded-full border-2 border-[var(--color-neon-cyan)] flex items-center justify-center hover:bg-[var(--color-neon-cyan)]/10 transition-all hover:shadow-[0_0_15px_var(--color-neon-cyan)]"
+        title={isRunning ? 'Pause' : 'Play'}
+      >
+        {isRunning ? (
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="var(--color-neon-cyan)">
+            <rect x="6" y="4" width="4" height="16" /><rect x="14" y="4" width="4" height="16" />
+          </svg>
+        ) : (
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="var(--color-neon-cyan)">
+            <polygon points="5,3 19,12 5,21" />
+          </svg>
+        )}
+      </button>
+
+      {/* Step backward */}
+      <button
+        onClick={handleStepBack}
+        className="w-8 h-8 rounded border border-[var(--color-border)] flex items-center justify-center hover:border-[var(--color-neon-cyan)] transition-colors"
+        title="Step Back"
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+          <rect x="16" y="5" width="4" height="14" rx="1" /><polygon points="8,12 16,4 16,20" />
+        </svg>
+      </button>
+
+      {/* Step forward */}
+      <button
+        onClick={handleStepForward}
+        className="w-8 h-8 rounded border border-[var(--color-border)] flex items-center justify-center hover:border-[var(--color-neon-cyan)] transition-colors"
+        title="Step Forward"
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+          <rect x="4" y="5" width="4" height="14" rx="1" /><polygon points="16,12 8,4 8,20" />
+        </svg>
+      </button>
+
+      {/* Reset */}
+      <button
+        onClick={handleReset}
+        className="w-8 h-8 rounded border border-[var(--color-border)] flex items-center justify-center hover:border-[var(--color-neon-pink)] transition-colors"
+        title="Reset"
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M3 12a9 9 0 1 1 9 9" /><polyline points="3 3 3 12 12 12" />
+        </svg>
+      </button>
+
+      {/* Speed control */}
+      <div className="flex items-center gap-2 ml-2">
+        <span className="text-xs text-[var(--color-text-secondary)]">Speed</span>
+        <input
+          type="range"
+          min="0.25"
+          max="4"
+          step="0.25"
+          value={speed}
+          onChange={(e) => handleSpeedChange(parseFloat(e.target.value))}
+          className="w-24 h-1 accent-[var(--color-neon-cyan)]"
+        />
+        <span className="text-xs text-[var(--color-neon-cyan)] w-8">{speed}x</span>
+      </div>
+
+      {/* Step counter */}
+      <div className="ml-auto flex items-center gap-2 text-xs text-[var(--color-text-secondary)]">
+        <span>Step</span>
+        <span className="text-[var(--color-neon-cyan)]">{currentStep + 1}</span>
+        <span>/</span>
+        <span>{totalSteps || snapshots.length}</span>
+      </div>
+
+      {/* Status badge */}
+      <div className={`text-xs px-2 py-1 rounded ${status === 'running' ? 'bg-[var(--color-neon-green)]/20 text-[var(--color-neon-green)] animate-pulse' : status === 'completed' ? 'bg-[var(--color-neon-cyan)]/20 text-[var(--color-neon-cyan)]' : 'bg-[var(--color-surface-3)] text-[var(--color-text-secondary)]'}`}>
+        {status.toUpperCase()}
+      </div>
+
+      {/* Description */}
+      <div className="text-xs text-[var(--color-text-secondary)] truncate max-w-md">
+        {description}
+      </div>
+    </div>
+  );
+}
