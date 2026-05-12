@@ -32,7 +32,7 @@ export function WelcomeHero() {
   const setSnapshots = useVisualizerStore((s) => s.setSnapshots);
   const setCurrentSnapshot = useVisualizerStore((s) => s.setCurrentSnapshot);
   const setCode = useEditorStore((s) => s.setCode);
-  const setTotalSteps = usePlaybackStore((s) => s.setTotalSteps);
+  const playback = usePlaybackStore();
   const lang = useLangStore((s) => s.lang);
   const tr = getTranslations(lang);
 
@@ -49,13 +49,14 @@ export function WelcomeHero() {
     const algoT = tr.algorithms[id as keyof typeof tr.algorithms] as { name: string; desc: string } | undefined;
     const name = algoT?.name ?? id;
     const code = `// ${name}\n${getTemplateCode(id)}`;
+    playback.reset();
     setCode(code);
     setVisualizationType(categoryMap[id] ?? 'array');
     const snapshots = runAlgorithm({ algorithm: id });
     setSnapshots(snapshots);
-    setTotalSteps(snapshots.length);
+    playback.setTotalSteps(snapshots.length);
     if (snapshots.length > 0) setCurrentSnapshot(snapshots[0]);
-  }, [setVisualizationType, setSnapshots, setCurrentSnapshot, setCode, setTotalSteps, tr]);
+  }, [setVisualizationType, setSnapshots, setCurrentSnapshot, setCode, playback, tr]);
 
   return (
     <div className="flex flex-col items-center justify-center h-full px-6 py-8">
@@ -128,8 +129,8 @@ function getTemplateCode(id: AlgorithmType): string {
     dfsTree: 'dfs(root)',
     bfsTree: 'bfs(root)',
     avlInsert: 'avl.insert([30,20,40,10,25,5,15])',
-    bfsGraph: 'bfs(graph, "A")',
-    dfsGraph: 'dfs(graph, "A")',
+    bfsGraph: 'bfsGraph(graph, "A")',
+    dfsGraph: 'dfsGraph(graph, "A")',
     llInsertHead: 'll.insertHead(5)',
     llDelete: 'll.delete(30)',
     llReverse: 'll.reverse()',

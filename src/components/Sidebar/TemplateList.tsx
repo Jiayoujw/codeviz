@@ -31,8 +31,8 @@ const templateDefs: {
   { id: 'bfsTree', category: 'tree', vizType: 'tree', difficulty: 'easy', code: 'bfs(root) // 广度优先遍历' },
   { id: 'avlInsert', category: 'tree', vizType: 'tree', difficulty: 'hard', code: 'avl.insert([30,20,40,10,25,5,15])' },
   // Graphs
-  { id: 'bfsGraph', category: 'graph', vizType: 'graph', difficulty: 'medium', code: 'bfs(graph, "A") // BFS遍历' },
-  { id: 'dfsGraph', category: 'graph', vizType: 'graph', difficulty: 'medium', code: 'dfs(graph, "A") // DFS遍历' },
+  { id: 'bfsGraph', category: 'graph', vizType: 'graph', difficulty: 'medium', code: 'bfsGraph(graph, "A") // BFS遍历' },
+  { id: 'dfsGraph', category: 'graph', vizType: 'graph', difficulty: 'medium', code: 'dfsGraph(graph, "A") // DFS遍历' },
   { id: 'dijkstra', category: 'graph', vizType: 'graph', difficulty: 'hard', code: 'dijkstra(graph, "A", "F") // 最短路径' },
   // Pathfinding
   { id: 'astar', category: 'search', vizType: 'grid', difficulty: 'hard', code: 'astar(maze, start, end) // A*寻路' },
@@ -156,8 +156,15 @@ export function TemplateList() {
       {/* Category sections */}
       {['sorting', 'search', 'tree', 'graph', 'dp', 'linkedlist'].map((cat) => {
         const catTemplates = templates.filter((t) => {
-          const catMap: Record<string, string> = { sorting: 'array', search: 'array', tree: 'tree', graph: 'graph', dp: 'dp', linkedlist: 'linkedlist' };
-          return t.category === catMap[cat];
+          const catMap: Record<string, string[]> = {
+            sorting: ['array'],
+            search: ['array', 'grid'],
+            tree: ['tree'],
+            graph: ['graph'],
+            dp: ['dp'],
+            linkedlist: ['linkedlist'],
+          };
+          return catMap[cat]?.includes(t.category);
         });
         if (catTemplates.length === 0) return null;
 

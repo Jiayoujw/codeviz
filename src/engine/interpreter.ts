@@ -99,6 +99,8 @@ const FUNCTION_ALGO_MAP: Record<string, AlgorithmType> = {
   binarySearch: 'binarySearch',
   dfs: 'dfsTree',
   bfs: 'bfsTree',
+  bfsGraph: 'bfsGraph',
+  dfsGraph: 'dfsGraph',
   dijkstra: 'dijkstra',
   astar: 'astar',
   fibonacci: 'fibonacci',
@@ -145,16 +147,23 @@ function walkCalls(node: acorn.Node, calls: ParsedCall[]): void {
     if (callee.type === 'Identifier' && callee.name) {
       const algo = FUNCTION_ALGO_MAP[callee.name];
       if (algo) {
-        const parsed: ParsedCall = { algorithm: algo };
+        const parsed: ParsedCall = { algorithm: algo, extra: {} };
         const firstArg = evalLiteral(args[0]);
+        const secondArg = evalLiteral(args[1]);
+        const thirdArg = evalLiteral(args[2]);
+
         if (Array.isArray(firstArg)) {
-          if (algo === 'binarySearch') {
-            // binarySearch(arr, target)
-            parsed.extra = { array: firstArg as number[] };
-          } else {
-            parsed.extra = { array: firstArg as number[] };
-          }
+          parsed.extra!.array = firstArg as number[];
         }
+
+        // Extract graph algorithm string args: dijkstra(graph, "A", "F"), bfsGraph(graph, "A")
+        if (typeof secondArg === 'string') {
+          parsed.extra!.graphStart = secondArg;
+        }
+        if (typeof thirdArg === 'string') {
+          parsed.extra!.graphEnd = thirdArg;
+        }
+
         calls.push(parsed);
       }
     }
