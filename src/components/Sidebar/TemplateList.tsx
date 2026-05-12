@@ -12,29 +12,37 @@ type Difficulty = 'easy' | 'medium' | 'hard';
 const templateDefs: {
   id: AlgorithmType;
   category: string;
+  vizType: string;
   difficulty: Difficulty;
   code: string;
 }[] = [
   // Sorting
-  { id: 'bubbleSort', category: 'sorting', difficulty: 'easy', code: 'bubbleSort([64,34,25,12,22,11,90])' },
-  { id: 'selectionSort', category: 'sorting', difficulty: 'easy', code: 'selectionSort([64,34,25,12,22,11,90])' },
-  { id: 'insertionSort', category: 'sorting', difficulty: 'easy', code: 'insertionSort([64,34,25,12,22,11,90])' },
-  { id: 'quickSort', category: 'sorting', difficulty: 'medium', code: 'quickSort([33,10,59,26,41,15,70])' },
-  { id: 'mergeSort', category: 'sorting', difficulty: 'medium', code: 'mergeSort([38,27,43,3,9,82,10])' },
-  { id: 'heapSort', category: 'sorting', difficulty: 'medium', code: 'heapSort([12,11,13,5,6,7])' },
+  { id: 'bubbleSort', category: 'sorting', vizType: 'array', difficulty: 'easy', code: 'bubbleSort([64,34,25,12,22,11,90])' },
+  { id: 'selectionSort', category: 'sorting', vizType: 'array', difficulty: 'easy', code: 'selectionSort([64,34,25,12,22,11,90])' },
+  { id: 'insertionSort', category: 'sorting', vizType: 'array', difficulty: 'easy', code: 'insertionSort([64,34,25,12,22,11,90])' },
+  { id: 'quickSort', category: 'sorting', vizType: 'array', difficulty: 'medium', code: 'quickSort([33,10,59,26,41,15,70])' },
+  { id: 'mergeSort', category: 'sorting', vizType: 'array', difficulty: 'medium', code: 'mergeSort([38,27,43,3,9,82,10])' },
+  { id: 'heapSort', category: 'sorting', vizType: 'array', difficulty: 'medium', code: 'heapSort([12,11,13,5,6,7])' },
+  // Search
+  { id: 'binarySearch', category: 'search', vizType: 'array', difficulty: 'easy', code: 'binarySearch(arr, 23) // 二分查找' },
   // Trees
-  { id: 'bstInsert', category: 'tree', difficulty: 'medium', code: 'bst.insert([50,30,70,20,40,60,80])' },
-  { id: 'dfsTree', category: 'tree', difficulty: 'easy', code: 'dfs(root) // 深度优先遍历' },
-  { id: 'bfsTree', category: 'tree', difficulty: 'easy', code: 'bfs(root) // 广度优先遍历' },
-  { id: 'avlInsert', category: 'tree', difficulty: 'hard', code: 'avl.insert([30,20,40,10,25,5,15])' },
+  { id: 'bstInsert', category: 'tree', vizType: 'tree', difficulty: 'medium', code: 'bst.insert([50,30,70,20,40,60,80])' },
+  { id: 'dfsTree', category: 'tree', vizType: 'tree', difficulty: 'easy', code: 'dfs(root) // 深度优先遍历' },
+  { id: 'bfsTree', category: 'tree', vizType: 'tree', difficulty: 'easy', code: 'bfs(root) // 广度优先遍历' },
+  { id: 'avlInsert', category: 'tree', vizType: 'tree', difficulty: 'hard', code: 'avl.insert([30,20,40,10,25,5,15])' },
   // Graphs
-  { id: 'bfsGraph', category: 'graph', difficulty: 'medium', code: 'bfs(graph, "A") // BFS遍历' },
-  { id: 'dfsGraph', category: 'graph', difficulty: 'medium', code: 'dfs(graph, "A") // DFS遍历' },
-  { id: 'dijkstra', category: 'graph', difficulty: 'hard', code: 'dijkstra(graph, "A", "F") // 最短路径' },
+  { id: 'bfsGraph', category: 'graph', vizType: 'graph', difficulty: 'medium', code: 'bfs(graph, "A") // BFS遍历' },
+  { id: 'dfsGraph', category: 'graph', vizType: 'graph', difficulty: 'medium', code: 'dfs(graph, "A") // DFS遍历' },
+  { id: 'dijkstra', category: 'graph', vizType: 'graph', difficulty: 'hard', code: 'dijkstra(graph, "A", "F") // 最短路径' },
+  // Pathfinding
+  { id: 'astar', category: 'search', vizType: 'grid', difficulty: 'hard', code: 'astar(maze, start, end) // A*寻路' },
+  // DP
+  { id: 'fibonacci', category: 'dp', vizType: 'dp', difficulty: 'easy', code: 'fibonacci(10) // 斐波那契DP' },
+  { id: 'knapsack', category: 'dp', vizType: 'dp', difficulty: 'medium', code: 'knapsack(weights, values, 8) // 01背包' },
   // Linked List
-  { id: 'llInsertHead', category: 'linkedlist', difficulty: 'easy', code: 'll.insertHead(5) // 头插' },
-  { id: 'llDelete', category: 'linkedlist', difficulty: 'easy', code: 'll.delete(30) // 按值删除' },
-  { id: 'llReverse', category: 'linkedlist', difficulty: 'medium', code: 'll.reverse() // 反转链表' },
+  { id: 'llInsertHead', category: 'linkedlist', vizType: 'linkedlist', difficulty: 'easy', code: 'll.insertHead(5) // 头插' },
+  { id: 'llDelete', category: 'linkedlist', vizType: 'linkedlist', difficulty: 'easy', code: 'll.delete(30) // 按值删除' },
+  { id: 'llReverse', category: 'linkedlist', vizType: 'linkedlist', difficulty: 'medium', code: 'll.reverse() // 反转链表' },
 ];
 
 const difficultyConfig: Record<Difficulty, { color: string; glow: string }> = {
@@ -45,9 +53,11 @@ const difficultyConfig: Record<Difficulty, { color: string; glow: string }> = {
 
 const categoryConfig: Record<string, { color: string; icon: string }> = {
   sorting: { color: 'var(--color-neon-pink)', icon: '📊' },
+  search: { color: 'var(--color-neon-orange)', icon: '🔍' },
   tree: { color: 'var(--color-neon-green)', icon: '🌳' },
   graph: { color: 'var(--color-neon-cyan)', icon: '🌐' },
   linkedlist: { color: 'var(--color-neon-purple)', icon: '🔗' },
+  dp: { color: 'var(--color-neon-yellow)', icon: '🎯' },
 };
 
 export function TemplateList() {
@@ -78,7 +88,7 @@ export function TemplateList() {
       return {
         id: t.id,
         name: algoT?.name ?? t.id,
-        category: (t.category === 'sorting' ? 'array' : t.category === 'linkedlist' ? 'linkedlist' : t.category as 'tree' | 'graph'),
+        category: (t.vizType as 'array' | 'tree' | 'graph' | 'linkedlist' | 'grid' | 'dp'),
         code: t.code,
         description: algoT?.desc ?? '',
         icon: categoryConfig[t.category]?.icon ?? '',
@@ -144,9 +154,9 @@ export function TemplateList() {
       </div>
 
       {/* Category sections */}
-      {['sorting', 'tree', 'graph', 'linkedlist'].map((cat) => {
+      {['sorting', 'search', 'tree', 'graph', 'dp', 'linkedlist'].map((cat) => {
         const catTemplates = templates.filter((t) => {
-          const catMap: Record<string, string> = { sorting: 'array', tree: 'tree', graph: 'graph', linkedlist: 'linkedlist' };
+          const catMap: Record<string, string> = { sorting: 'array', search: 'array', tree: 'tree', graph: 'graph', dp: 'dp', linkedlist: 'linkedlist' };
           return t.category === catMap[cat];
         });
         if (catTemplates.length === 0) return null;

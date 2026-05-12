@@ -69,6 +69,33 @@ export interface LinkedListState {
   pointerPosition: number | null;
 }
 
+export interface GridCell {
+  row: number;
+  col: number;
+  type: 'empty' | 'wall' | 'start' | 'end' | 'path' | 'visited' | 'current' | 'open';
+  f: number;
+  g: number;
+  h: number;
+}
+
+export interface GridState {
+  rows: number;
+  cols: number;
+  cells: GridCell[][];
+  startRow: number;
+  startCol: number;
+  endRow: number;
+  endCol: number;
+}
+
+export interface DPTableState {
+  dp: number[][];
+  highlighted: [number, number] | null;
+  rowLabels: string[];
+  colLabels: string[];
+  description: string;
+}
+
 export interface StateSnapshot {
   step: number;
   line: number;
@@ -77,16 +104,20 @@ export interface StateSnapshot {
   treeState?: TreeNodeData | null;
   graphState?: GraphState;
   linkedListState?: LinkedListState;
+  gridState?: GridState;
+  dpState?: DPTableState;
   description: string;
 }
 
-export type VisualizationType = 'array' | 'tree' | 'graph' | 'linkedlist';
+export type VisualizationType = 'array' | 'tree' | 'graph' | 'linkedlist' | 'grid' | 'dp';
 
 export type AlgorithmType =
   | 'bubbleSort' | 'selectionSort' | 'insertionSort' | 'mergeSort' | 'quickSort' | 'heapSort'
   | 'bstInsert' | 'bstSearch' | 'dfsTree' | 'bfsTree' | 'avlInsert'
   | 'bfsGraph' | 'dfsGraph' | 'dijkstra'
-  | 'llInsertHead' | 'llDelete' | 'llReverse';
+  | 'astar'
+  | 'llInsertHead' | 'llDelete' | 'llReverse'
+  | 'fibonacci' | 'knapsack' | 'binarySearch';
 
 export interface AlgorithmTemplate {
   id: string;

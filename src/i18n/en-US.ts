@@ -75,6 +75,8 @@ const en = {
     tree: 'Select a tree algorithm to visualize',
     graph: 'Select a graph algorithm to visualize',
     linkedlist: 'Select a linked list operation to visualize',
+    grid: 'Select a pathfinding algorithm to visualize',
+    dp: 'Select a DP algorithm to visualize',
     variables: 'No variables to display',
     noCode: '// Select an algorithm from the sidebar or write your own!\nconst arr = [64, 34, 25, 12, 22, 11, 90];\nbubbleSort(arr);',
   },

@@ -5,6 +5,8 @@ import { useEditorStore } from '../../store/editorStore';
 import { useLangStore } from '../../store/langStore';
 import { getTranslations } from '../../i18n';
 import { exportGif } from '../../engine/gifExporter';
+import { playStepSound, playCompleteSound, isSoundEnabled } from '../../engine/soundEngine';
+import { runUserCode } from '../../engine/interpreter';
 
 export function PlaybackControls() {
   const status = usePlaybackStore((s) => s.status);
@@ -14,7 +16,10 @@ export function PlaybackControls() {
   const currentStep = usePlaybackStore((s) => s.currentStep);
   const setCurrentStep = usePlaybackStore((s) => s.setCurrentStep);
   const totalSteps = usePlaybackStore((s) => s.totalSteps);
+  const setTotalSteps = usePlaybackStore((s) => s.setTotalSteps);
   const snapshots = useVisualizerStore((s) => s.snapshots);
+  const setSnapshots = useVisualizerStore((s) => s.setSnapshots);
+  const setVisualizationType = useVisualizerStore((s) => s.setVisualizationType);
   const setCurrentSnapshot = useVisualizerStore((s) => s.setCurrentSnapshot);
   const setCurrentLine = useEditorStore((s) => s.setCurrentLine);
   const visualizationType = useVisualizerStore((s) => s.visualizationType);
@@ -48,8 +53,10 @@ export function PlaybackControls() {
       setCurrentSnapshot(snapshots[next]);
       setCurrentLine(snapshots[next].line);
       setStatus('paused');
+      if (isSoundEnabled()) playStepSound();
     } else {
       setStatus('completed');
+      if (isSoundEnabled()) playCompleteSound();
     }
   }, [snapshots, currentStep, setCurrentStep, setCurrentSnapshot, setCurrentLine, setStatus]);
 
@@ -85,6 +92,30 @@ export function PlaybackControls() {
       setExporting(false);
     }
   }, [snapshots, visualizationType, speed, exporting]);
+
+  const handleRun = useCallback(() => {
+    const code = useEditorStore.getState().code;
+    if (!code.trim()) return;
+    setStatus('idle');
+    setCurrentStep(0);
+    const results = runUserCode(code);
+    if (results.length === 0) return;
+
+    // Deduce visualization type from first snapshot
+    const first = results[0];
+    let vizType = 'array' as 'array' | 'tree' | 'graph' | 'linkedlist' | 'grid' | 'dp';
+    if (first.gridState) vizType = 'grid';
+    else if (first.dpState) vizType = 'dp';
+    else if (first.treeState) vizType = 'tree';
+    else if (first.graphState) vizType = 'graph';
+    else if (first.linkedListState) vizType = 'linkedlist';
+
+    setVisualizationType(vizType);
+    setSnapshots(results);
+    setTotalSteps(results.length);
+    setCurrentSnapshot(results[0]);
+    setCurrentLine(results[0].line);
+  }, [setStatus, setCurrentStep, setVisualizationType, setSnapshots, setTotalSteps, setCurrentSnapshot, setCurrentLine]);
 
   const description = snapshots[currentStep]?.description ?? '';
 
@@ -133,6 +164,18 @@ export function PlaybackControls() {
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M3 12a9 9 0 1 1 9 9" /><polyline points="3 3 3 12 12 12" />
         </svg>
+      </button>
+
+      {/* Run user code */}
+      <button
+        onClick={handleRun}
+        className="px-3 py-1.5 text-xs rounded border border-[var(--color-neon-green)]/30 text-[var(--color-neon-green)] hover:border-[var(--color-neon-green)] hover:shadow-[0_0_10px_var(--color-neon-green)] transition-all flex items-center gap-1"
+        title={lang === 'zh-CN' ? '运行代码' : 'Run Code'}
+      >
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+          <polygon points="5,3 19,12 5,21" />
+        </svg>
+        {lang === 'zh-CN' ? '运行' : 'Run'}
       </button>
 
       {/* Speed control */}

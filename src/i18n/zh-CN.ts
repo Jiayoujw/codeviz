@@ -75,6 +75,8 @@ const zh = {
     tree: '选择一个树算法进行可视化',
     graph: '选择一个图算法进行可视化',
     linkedlist: '选择一个链表操作进行可视化',
+    grid: '选择一个寻路算法进行可视化',
+    dp: '选择一个DP算法进行可视化',
     variables: '暂无变量',
     noCode: '// 从侧边栏选择算法或自行编写！\nconst arr = [64, 34, 25, 12, 22, 11, 90];\nbubbleSort(arr);',
   },
